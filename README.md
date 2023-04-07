@@ -4,12 +4,12 @@ Annax is a high-performance Approximate Nearest Neighbor (ANN) library built on 
 
 ## Features
 
-Fast and memory-efficient approximate nearest neighbor search
-GPU acceleration for high-performance computing
-Supports a wide range of indexing structures and distance metrics
-Easy-to-use API for seamless integration with existing projects
-Applicable to various domains, including machine learning, computer vision, and natural language processing
-Built on top of the JAX framework for enhanced flexibility and extensibility
+ - Fast and memory-efficient approximate nearest neighbor search
+ - GPU acceleration for high-performance computing
+ - Supports a wide range of indexing structures and distance metrics
+ - Easy-to-use API for seamless integration with existing projects
+ - Applicable to various domains, including machine learning, computer vision, and natural language processing
+ - Built on top of the JAX framework for enhanced flexibility and extensibility
 
 ## Installation
 
