@@ -4,12 +4,12 @@ Annax is a high-performance Approximate Nearest Neighbor (ANN) library built on 
 
 ## Features
 
- - Fast and memory-efficient approximate nearest neighbor search
- - GPU acceleration for high-performance computing
- - Supports a wide range of indexing structures and distance metrics
- - Easy-to-use API for seamless integration with existing projects
- - Applicable to various domains, including machine learning, computer vision, and natural language processing
- - Built on top of the JAX framework for enhanced flexibility and extensibility
+- Fast and memory-efficient approximate nearest neighbor search
+- GPU acceleration for high-performance computing
+- Supports a wide range of indexing structures and distance metrics
+- Easy-to-use API for seamless integration with existing projects
+- Applicable to various domains, including machine learning, computer vision, and natural language processing
+- Built on top of the JAX framework for enhanced flexibility and extensibility
 
 ## Installation
 
@@ -24,7 +24,6 @@ pip install annax
 Here's a simple example of using Annax to find the nearest neighbors in a dataset:
 
 ```python
-Copy code
 import numpy as np
 import annax
 
@@ -37,6 +36,15 @@ index = annax.Index(data)
 # Query for the 10 nearest neighbors of a random vector
 query = np.random.random(128)
 neighbors, distances = index.search(query, k=10)
+```
+
+## Development
+
+To install Annax for development, run the following commands in your terminal:
+
+```bash
+python -m pip install -e '.[dev]'
+pre-commit install
 ```
 
 ## License

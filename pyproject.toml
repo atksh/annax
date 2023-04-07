@@ -1,0 +1,52 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+  "setuptools>=42",
+  "wheel",
+]
+
+[project]
+authors = [
+  {name = "atksh", email = "31435204+atksh@users.noreply.github.com"},
+]
+dependencies = [
+  "jax>=0.4.8",
+  "jaxlib>=0.4.7",
+  "numpy>=1.24.2",
+]
+description = "Fast and memory-efficient approximate nearest neighbor search with JAX"
+name = "annax"
+readme = "README.md"
+requires-python = ">=3.8,<3.12"
+version = "0.0.1"
+
+[project.license]
+file = "LICENSE"
+
+[options.packages.find]
+exclude = [
+  "tests",
+  "tests.*",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest~=7.2.2",
+  "black~=23.3.0",
+  "isort~=5.12.0",
+  "pre-commit~=3.2.2",
+]
+
+[tool.black]
+extend-exclude = '''
+/(
+  | tests
+)/
+'''
+line-length = 120
+target-version = ["py39"]
+
+[tool.isort]
+line_length = 120
+profile = "black"
+py_version = "38"

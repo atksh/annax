@@ -1,0 +1,6 @@
+[flake8]
+ignore=W503,W292,E203
+max-line-length=120
+max-complexity=20
+per-file-ignores=
+    ./tests/foo.py:E402,C901
