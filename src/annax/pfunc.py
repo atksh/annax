@@ -11,6 +11,7 @@ def left_pjit(f):
     in_shardings = (PartitionSpec("data", "dim"), PartitionSpec("query", "dim"))
     out_shardings = PartitionSpec("query", "dim")
 
+    shard_names = ("data", "query", "dim")
     mesh_shape = (num_cores, 1, 1)
     device_mesh = mesh_utils.create_device_mesh(mesh_shape=mesh_shape)
 
@@ -21,7 +22,7 @@ def left_pjit(f):
         thre = (n // num_cores) * num_cores
         xb, xr = x[:thre], x[thre:]
         yr = vec_f(xr, y)
-        with Mesh(device_mesh, ("data", "query", "dim")):
+        with Mesh(device_mesh, shard_names):
             yb = func(xb, y)
         return np.concatenate([yb, yr], axis=0).T
 
