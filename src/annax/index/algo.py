@@ -3,7 +3,7 @@ from typing import Tuple
 import jax.numpy as np
 from jax import Array
 
-from ..pjit import k_pmap, left_pjit
+from ..pfunc import k_pmap, left_pjit
 from .ops import argtopk, inner_prod
 
 parallel_inner_prod = left_pjit(inner_prod)
