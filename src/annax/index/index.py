@@ -26,7 +26,7 @@ class BaseIndex:
         return None
 
     def _asarray(self, array: ArrayLike) -> Array:
-        return np.asarray(array, dtype=self.dtype)
+        return np.asarray(array, dtype=self._dtype)
 
     def search(self, query: ArrayLike, *, k: int = 1) -> Tuple[Array, Array]:
         """Search for the k nearest neighbors of the query points.
