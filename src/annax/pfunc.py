@@ -9,7 +9,7 @@ def left_pjit(f):
     vec_f = jax.vmap(f, in_axes=(0, None), out_axes=0)
     num_cores = jax.local_device_count()
     in_shardings = (PartitionSpec("data", "dim"), PartitionSpec("query", "dim"))
-    out_shardings = PartitionSpec("query", "dim")
+    out_shardings = PartitionSpec("data", "query")
 
     shard_names = ("data", "query", "dim")
     mesh_shape = (num_cores, 1, 1)
@@ -24,7 +24,9 @@ def left_pjit(f):
         yr = vec_f(xr, y)
         with Mesh(device_mesh, shard_names):
             yb = func(xb, y)
-        return np.concatenate([yb, yr], axis=0).T
+            yb = jax.device_get(yb)
+        out = np.concatenate([yb, yr], axis=0).T
+        return out
 
     return pjit_f
 
