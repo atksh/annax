@@ -24,7 +24,6 @@ pip install annax
 Here's a simple example of using Annax to find the nearest neighbors in a dataset:
 
 ```python
-Copy code
 import numpy as np
 import annax
 
