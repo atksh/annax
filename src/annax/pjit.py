@@ -21,7 +21,7 @@ def left_pjit(f):
         thre = (n // num_cores) * num_cores
         xb, xr = x[:thre], x[thre:]
         yr = vec_f(xr, y)
-        with Mesh(device_mesh, ("data", "query", "dim")) as mesh:
+        with Mesh(device_mesh, ("data", "query", "dim")):
             yb = func(xb, y)
         return np.concatenate([yb, yr], axis=0).T
 
