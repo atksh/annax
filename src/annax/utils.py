@@ -15,6 +15,7 @@ def pvmap(f, in_axes=0, out_axes=0):
         yb = jax.pmap(vec_f)(xb)
         yr = vec_f(xr)
         yb = yb.reshape(-1, *yr.shape[1:])
+        yb = jax.device_put(yb, device=yr.device_buffer.device())
         return np.concatenate([yb, yr], axis=0)
 
     return pvec_f
