@@ -1,18 +1,13 @@
-import os
-
-import pytest
-
-os.environ["XLA_FLAGS"] = "--xla_force_host_platform_device_count=8"
-
 import jax
 import jax.numpy as jnp
 import numpy as np
+import pytest
 
-from annax.index.index import Index, IndexPQ
+from annax.index.index import Index, IndexIVF, IndexPQ
 
 
-@pytest.mark.parametrize("klass", [Index, IndexPQ])
-@pytest.mark.parametrize("dtype", [jnp.bfloat16, jnp.float32, jnp.float16])
+@pytest.mark.parametrize("klass", [Index, IndexIVF, IndexPQ])
+@pytest.mark.parametrize("dtype", [jnp.float16, jnp.float32, jnp.bfloat16])
 def test_index(klass, dtype):
     np.random.seed(0)
     data = np.random.random((1000, 128))
