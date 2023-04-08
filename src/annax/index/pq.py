@@ -1,4 +1,5 @@
 from functools import partial
+from typing import Tuple
 
 import jax
 import jax.numpy as jnp
@@ -64,6 +65,52 @@ def decode(codes: Array, codebooks: Array) -> Array:
     return ret
 
 
+@jax.jit
+def calc_prod_table(codebooks: Array) -> Array:
+    """Calculate distance table for each codebook.
+
+    Args:
+        codebooks (Array): (d // s, k, s)
+
+    Returns:
+        Array: (d // s, k, k)
+    """
+    return jnp.einsum("nid,njd->nij", codebooks, codebooks)
+
+
+@jax.jit
+def lookup_prod_table(table: Array, x: Array, y: Array) -> Array:
+    """Lookup distance table for given data.
+
+    Args:
+        table (Array): (d // s, k, k)
+        x (Array): encoded codes. (n, d // s)
+        y (Array): encoded codes. (m, d // s)
+
+    Returns:
+        Array: (n, m)
+    """
+    x = x.T
+    y = y.T
+
+    @jax.jit
+    def f(t, i, j):
+        """Lookup distance table for given data.
+
+        Args:
+            t (Array): (k, k)
+            i (Array): encoded codes. (n,)
+            j (Array): encoded codes. (m,)
+
+        Returns:
+            Array: (n, m)
+        """
+        return t[i].take(j, axis=1)
+
+    sub_dist = jax.vmap(f, in_axes=(0, 0, 0))(table, x, y)  # (d // s, n, m)
+    return sub_dist.sum(axis=0)
+
+
 class ProductQuantizer:
     k: int = 256
 
@@ -71,24 +118,57 @@ class ProductQuantizer:
         self.dim = data.shape[1]
         self.data = data
         self.sub_dim = sub_dim
-        self.codebooks = None
         self.batch_size = min(batch_size, data.shape[0]) if batch_size > 0 else data.shape[0]
         self.n_iter = n_iter
+
+        self.codebooks = None
+        self.prod_table = None
 
     def _prep(self, data: Array) -> Array:
         return _prep(data, self.sub_dim)
 
-    def fit(self) -> None:
+    def fit(self) -> Tuple[Array, Array]:
         self.codebooks = pq(self.data, self.sub_dim, self.k, n_iter=self.n_iter, batch_size=self.batch_size)
-        return self.codebooks
+        self.prod_table = calc_prod_table(self.codebooks)
+        return self.codebooks, self.prod_table
 
     def compute_codes(self, x: Array) -> Array:
+        """Compute codes for given data.
+
+        Args:
+            x (Array): (n, d)
+
+        Returns:
+            Array: (n, d // s)
+        """
         x = self._prep(x)  # (d // s, n, s)
         ret = encode(x, self.codebooks)  # (d // s, n)
         return ret
 
     def decode(self, codes: Array) -> Array:
+        """Decode codes to data.
+
+        Args:
+            codes (Array): (n, d // s)
+
+        Returns:
+            Array: (n, d)
+        """
         ret = decode(codes.T, self.codebooks)  # (d // s, n, s)
         ret = ret.transpose(1, 0, 2)  # (n, d // s, s)
         ret = ret.reshape(ret.shape[0], -1)  # (n, d)
         return ret[:, : self.dim]
+
+    def aprod(self, codes_x: Array, codes_y: Array) -> Array:
+        """Approximate distance between two code vectors.
+
+        Args:
+            codes_x (Array): (n, d // s)
+            codes_y (Array): (m, d // s)
+
+        Returns:
+            Array: (n, m)
+        """
+        assert codes_x.shape[1] == codes_y.shape[1]
+        assert self.prod_table is not None
+        return lookup_prod_table(self.prod_table, codes_x, codes_y)
