@@ -13,6 +13,7 @@ dependencies = [
   "jax>=0.4.8",
   "jaxlib>=0.4.7",
   "numpy>=1.24.2",
+  "zstandard~=0.20.0",
 ]
 description = "Fast and memory-efficient approximate nearest neighbor search with JAX"
 name = "annax"

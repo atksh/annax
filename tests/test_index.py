@@ -1,3 +1,5 @@
+import io
+
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -14,6 +16,10 @@ def test_index(klass, dtype):
 
     # Create an Annax index with the default configuration
     index = klass(data, dtype=dtype)
+    with io.BytesIO() as f:
+        index.dump(f)
+        f.seek(0)
+        index = klass.load(f)
 
     # Query for the 10 nearest neighbors of a random vector
     query = np.random.random((10, 128))
