@@ -2,12 +2,14 @@ from typing import Dict, Optional, Tuple
 
 import jax
 import jax.numpy as jnp
+import numpy as np
 from jax import Array
 from jax.typing import ArrayLike
 
 from .algo import ivf_search, ivfpq_search, naive_search, pq_search
 from .kmeans import find_assignments, kmeans
 from .pq import calc_prod_table, encode, pq, prep
+from .serialize import dump, load
 
 
 class BaseIndex:
@@ -45,6 +47,22 @@ class BaseIndex:
     def _search(self, query: Array, *, k: int = 1) -> Array:
         raise NotImplementedError
 
+    def dump(self, f_obj) -> None:
+        meta = {k: jax.device_get(v) if isinstance(v, jnp.ndarray) else v for k, v in self._meta.items()}
+        data = {
+            "meta": meta,
+            "vars": {k: v for k, v in vars(self).items() if k != "_meta"},
+        }
+        dump(data, f_obj)
+
+    @classmethod
+    def load(cls, f_obj):
+        data = load(f_obj)
+        ins = cls.__new__(cls)
+        ins._meta = {k: jax.device_get(v) if isinstance(v, jnp.ndarray) else v for k, v in data["meta"].items()}
+        ins.__dict__.update(data["vars"])
+        return ins
+
 
 class Index(BaseIndex):
     def _search(self, query: Array, *, k: int = 1) -> Array:
@@ -56,7 +74,7 @@ class IndexPQ(BaseIndex):
         self,
         data: ArrayLike,
         *,
-        sub_dim: int = 8,
+        sub_dim: int = 4,
         batch_size: int = 8192,
         n_iter: int = 10_000,
         k: int = 256,
@@ -124,9 +142,9 @@ class IndexIVFPQ(BaseIndex):
         self,
         data: ArrayLike,
         *,
-        nlist: int = 100,
-        nprobe: int = 10,
-        sub_dim: int = 8,
+        nlist: int = 500,
+        nprobe: int = 15,
+        sub_dim: int = 4,
         k: int = 256,
         batch_size: int = 8192,
         n_iter: int = 10_000,
