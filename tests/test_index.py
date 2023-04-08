@@ -8,16 +8,17 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
-from annax.index.index import Index
+from annax.index.index import Index, PQIndex
 
 
+@pytest.mark.parametrize("klass", [Index, PQIndex])
 @pytest.mark.parametrize("dtype", [jnp.bfloat16, jnp.float32, jnp.float16])
-def test_index(dtype):
+def test_index(klass, dtype):
     np.random.seed(0)
     data = np.random.random((1000, 128))
 
     # Create an Annax index with the default configuration
-    index = Index(data, dtype=dtype)
+    index = klass(data, dtype=dtype)
 
     # Query for the 10 nearest neighbors of a random vector
     query = np.random.random((10, 128))

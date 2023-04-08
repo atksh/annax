@@ -10,7 +10,7 @@ from .kmeans import find_assignments, kmeans
 
 
 @partial(jax.jit, static_argnums=(1,))
-def _prep(data: Array, sub_dim: int) -> Array:
+def prep(data: Array, sub_dim: int) -> Array:
     n, d = data.shape
     pad = (sub_dim - (d % sub_dim)) % sub_dim
     data = jnp.pad(data, ((0, 0), (0, pad)), mode="constant", constant_values=0)
@@ -22,7 +22,7 @@ def _prep(data: Array, sub_dim: int) -> Array:
 def pq(
     data: Array, sub_dim: int, k: int, n_iter: int = 100, batch_size: int = 1024, momentum: float = 0.7, seed: int = 42
 ) -> Array:
-    data = _prep(data, sub_dim)
+    data = prep(data, sub_dim)
     f = partial(kmeans, k=k, n_iter=n_iter, batch_size=batch_size, momentum=momentum, seed=seed)
     codebooks = pmap(f)(data)  # (d // s, k, s)
     return codebooks
@@ -125,8 +125,8 @@ class ProductQuantizer:
         self.codebooks = None
         self.prod_table = None
 
-    def _prep(self, data: Array) -> Array:
-        return _prep(data, self.sub_dim)
+    def prep(self, data: Array) -> Array:
+        return prep(data, self.sub_dim)
 
     def fit(self) -> Tuple[Array, Array]:
         self.codebooks = pq(self.data, self.sub_dim, self.k, n_iter=self.n_iter, batch_size=self.batch_size)
@@ -142,7 +142,7 @@ class ProductQuantizer:
         Returns:
             Array: (n, d // s)
         """
-        x = self._prep(x)  # (d // s, n, s)
+        x = self.prep(x)  # (d // s, n, s)
         ret = encode(x, self.codebooks)  # (d // s, n)
         return ret
 
