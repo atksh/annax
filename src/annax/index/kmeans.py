@@ -50,6 +50,7 @@ def update_codebook(data: Array, assignments: Array, codebook: Array, momentum: 
 
 def kmeans(data: Array, codebook: Array, n_iter: int, batch_size: int, momentum: float) -> Array:
     n = data.shape[0]
+    k = codebook.shape[0]
 
     @jax.jit
     def g(prng_key: Array, codebook: Array) -> Array:
@@ -63,7 +64,13 @@ def kmeans(data: Array, codebook: Array, n_iter: int, batch_size: int, momentum:
         prng_key = jax.random.PRNGKey(i)
         return g(prng_key, codebook)
 
-    return jax.lax.fori_loop(0, n_iter, f, codebook)
+    codebook = jax.lax.fori_loop(0, n_iter, f, codebook)
+    assignments = find_assignments(data, codebook)
+    one_hot = jax.nn.one_hot(assignments, k, dtype=data.dtype)
+    count = one_hot.sum(axis=0)
+    count = jnp.where(count == 0, 1, count)
+    sums = jnp.dot(one_hot.T, data)
+    return sums / count[:, None]
 
 
 class KMeans:
@@ -101,10 +108,4 @@ class KMeans:
             Array: codebook vectors with shape (k, d)
         """
         self.codebook = kmeans(self.data, self.codebook, self.n_iter, self.batch_size, self.momentum)
-        assignments = find_assignments(self.data, self.codebook)
-        one_hot = jax.nn.one_hot(assignments, self.k, dtype=self.data.dtype)
-        count = one_hot.sum(axis=0)
-        count = jnp.where(count == 0, 1, count)
-        sums = jnp.dot(one_hot.T, self.data)
-        self.codebook = sums / count[:, None]
         return self.codebook
