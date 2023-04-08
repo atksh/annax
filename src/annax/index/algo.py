@@ -71,3 +71,26 @@ def ivfpq_search(
 
     indices, dists = pmap_tuple(f)(jnp.arange(encoded_query.shape[0]))  # (m, k)
     return indices, dists
+
+
+def ivfpq_search(
+    encoded_data: Array,
+    encoded_query: Array,
+    encoded_codebook: Array,
+    prod_tables: Array,
+    data_clusters: Array,
+    query: Array,
+    codebook: Array,
+    max_cluster_size: int,
+    nprobe: int = 1,
+    k: int = 1,
+) -> Tuple[Array, Array]:
+    near_indices = find_assignments_topk_pq(query, codebook, encoded_query, encoded_codebook, prod_tables, nprobe)
+
+    def f(i):
+        return single_ivf_search_pq(
+            encoded_data, prod_tables, data_clusters, encoded_query[i], near_indices[i], max_cluster_size, k
+        )
+
+    indices, dists = jax.vmap(f)(jnp.arange(encoded_query.shape[0]))  # (m, k)
+    return indices, dists
