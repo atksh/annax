@@ -1,3 +1,3 @@
-from .index import Index, PQIndex
+from .index import Index, IndexPQ
 
-__all__ = ["Index", "PQIndex"]
+__all__ = ["Index", "IndexPQ"]

@@ -5,7 +5,8 @@ import jax.numpy as jnp
 from jax import Array
 from jax.typing import ArrayLike
 
-from .algo import naive_search, pq_search
+from .algo import ivf_search, naive_search, pq_search
+from .kmeans import find_assignments, kmeans
 from .pq import calc_prod_table, encode, pq, prep
 
 
@@ -50,7 +51,7 @@ class Index(BaseIndex):
         return naive_search(self.meta["data"], query=query, k=k)
 
 
-class PQIndex(BaseIndex):
+class IndexPQ(BaseIndex):
     def __init__(
         self,
         data: ArrayLike,
@@ -76,3 +77,43 @@ class PQIndex(BaseIndex):
     def _search(self, query: Array, *, k: int = 1) -> Array:
         query = encode(prep(query, self.sub_dim), self.meta["codebooks"])
         return pq_search(self.meta["encoded_data"], query, self.meta["prod_tables"], k=k)
+
+
+class IndexIVF(BaseIndex):
+    def __init__(
+        self,
+        data: ArrayLike,
+        *,
+        nlist: int = 100,
+        nprobe: int = 3,
+        batch_size: int = 8192,
+        n_iter: int = 10_000,
+        dtype: jnp.dtype = jnp.float32,
+    ) -> None:
+        self.nlist = nlist
+        self.nprobe = nprobe
+        self.batch_size = batch_size
+        self.n_iter = n_iter
+        super().__init__(data, dtype=dtype)
+
+    def _build(self, data: Array) -> Dict[str, Array]:
+        codebook = kmeans(data, self.nlist, n_iter=self.n_iter, batch_size=self.batch_size)
+        data_clusters = find_assignments(data, codebook)
+        max_cluster_size = int(jnp.max(jnp.bincount(data_clusters)))
+        return {
+            "codebook": codebook,
+            "data_clusters": data_clusters,
+            "data": data,
+            "max_cluster_size": max_cluster_size,
+        }
+
+    def _search(self, query: Array, *, k: int = 1) -> Array:
+        return ivf_search(
+            self.meta["data"],
+            query,
+            self.meta["data_clusters"],
+            self.meta["codebook"],
+            self.meta["max_cluster_size"],
+            self.nprobe,
+            k=k,
+        )
