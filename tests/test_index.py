@@ -8,7 +8,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
-import annax
+from annax.index.index import Index
 
 
 @pytest.mark.parametrize("dtype", [jnp.bfloat16, jnp.float32, jnp.float16])
@@ -17,7 +17,7 @@ def test_index(dtype):
     data = np.random.random((1000, 128))
 
     # Create an Annax index with the default configuration
-    index = annax.Index(data, dtype=dtype)
+    index = Index(data, dtype=dtype)
 
     # Query for the 10 nearest neighbors of a random vector
     query = np.random.random((10, 128))

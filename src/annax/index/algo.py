@@ -1,7 +1,7 @@
 from typing import Tuple
 
 import jax
-import jax.numpy as np
+import jax.numpy as jnp
 from jax import Array
 
 from ..pfunc import k_pmap, left_pjit

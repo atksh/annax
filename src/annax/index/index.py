@@ -1,7 +1,7 @@
 from typing import Dict, Optional, Tuple
 
 import jax
-import jax.numpy as np
+import jax.numpy as jnp
 from jax import Array
 from jax.typing import ArrayLike
 
@@ -9,7 +9,7 @@ from .algo import naive_search
 
 
 class BaseIndex:
-    def __init__(self, data: ArrayLike, *, dtype: np.dtype = np.float32) -> None:
+    def __init__(self, data: ArrayLike, *, dtype: jnp.dtype = jnp.float32) -> None:
         self._dtype = dtype
         self._data = self._asarray(data)
         self._meta = self._build(self.data)
@@ -26,7 +26,7 @@ class BaseIndex:
         return None
 
     def _asarray(self, array: ArrayLike) -> Array:
-        return np.asarray(array, dtype=self._dtype)
+        return jnp.asarray(array, dtype=self._dtype)
 
     def search(self, query: ArrayLike, *, k: int = 1) -> Tuple[Array, Array]:
         """Search for the k nearest neighbors of the query points.

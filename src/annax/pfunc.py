@@ -1,5 +1,5 @@
 import jax
-import jax.numpy as np
+import jax.numpy as jnp
 from jax.experimental import mesh_utils
 from jax.experimental.pjit import pjit
 from jax.sharding import Mesh, PartitionSpec
@@ -25,7 +25,7 @@ def left_pjit(f):
         with Mesh(device_mesh, shard_names):
             yb = func(xb, y)
             yb = jax.device_get(yb)
-        out = np.concatenate([yb, yr], axis=0).T
+        out = jnp.concatenate([yb, yr], axis=0).T
         return out
 
     return pjit_f
@@ -43,6 +43,6 @@ def k_pmap(f):
         xb = xb.reshape(num_cores, -1, *xb.shape[1:])
         yb = jax.pmap(lambda z: vec_f(z, k))(xb)
         yb = yb.reshape(-1, *yr.shape[1:])
-        return np.concatenate([yb, yr], axis=0)
+        return jnp.concatenate([yb, yr], axis=0)
 
     return func
