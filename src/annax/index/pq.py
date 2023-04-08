@@ -68,7 +68,7 @@ def decode(codes: Array, codebooks: Array) -> Array:
 
 @jax.jit
 def calc_prod_table(codebooks: Array) -> Array:
-    """Calculate distance table for each codebook.
+    """Calculate dot product table for each codebook.
 
     Args:
         codebooks (Array): (d // s, k, s)
@@ -81,7 +81,7 @@ def calc_prod_table(codebooks: Array) -> Array:
 
 @jax.jit
 def lookup_prod_table(table: Array, x: Array, y: Array) -> Array:
-    """Lookup distance table for given data.
+    """Lookup dot product table for given data.
 
     Args:
         table (Array): (d // s, k, k)
@@ -96,7 +96,7 @@ def lookup_prod_table(table: Array, x: Array, y: Array) -> Array:
 
     @jax.jit
     def f(t, i, j):
-        """Lookup distance table for given data.
+        """Lookup dot product table for given data.
 
         Args:
             t (Array): (k, k)
