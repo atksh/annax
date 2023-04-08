@@ -14,7 +14,7 @@ def test_pq():
     codes = pq.compute_codes(x)
     xa = pq.decode(codes)
     diff = xa - x
-    assert np.all(np.abs(diff) / np.abs(x).max() < 0.5)
+    assert np.all(np.abs(diff) / np.abs(x).max() < 0.1)
     ad = pq.aprod(codes[:6], codes[6:])
     d = jax.numpy.einsum("id,jd->ij", x[:6], x[6:])
     diff = ad - d
