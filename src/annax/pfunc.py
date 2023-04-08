@@ -63,3 +63,23 @@ def pmap(f):
         return jnp.concatenate([yb, yr], axis=0)
 
     return func
+
+
+def pmap_zip(f):
+    vec_f = jax.vmap(f, in_axes=(0, 0), out_axes=0)
+    num_cores = jax.local_device_count()
+
+    def func(x1, x2):
+        n = x1.shape[0]
+        assert x2.shape[0] == n
+        thre = (n // num_cores) * num_cores
+        x1b, x1r = x1[:thre], x1[thre:]
+        x2b, x2r = x2[:thre], x2[thre:]
+        yr = vec_f(x1r, x2r)
+        x1b = x1b.reshape(num_cores, -1, *x1b.shape[1:])
+        x2b = x2b.reshape(num_cores, -1, *x2b.shape[1:])
+        yb = jax.pmap(vec_f)(x1b, x2b)
+        yb = yb.reshape(-1, *yr.shape[1:])
+        return jnp.concatenate([yb, yr], axis=0)
+
+    return func
