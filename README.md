@@ -41,7 +41,7 @@ neighbors, distances = index.search(query, k=10)
 ### PQ-ANN
 
 ```python
-index = annax.PQIndex(data)
+index = annax.IndexPQ(data)
 
 query = np.random.random(128)
 neighbors, distances = index.search(query, k=10)

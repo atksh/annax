@@ -50,7 +50,7 @@ class Index(BaseIndex):
         return naive_search(self.meta["data"], query=query, k=k)
 
 
-class PQIndex(BaseIndex):
+class IndexPQ(BaseIndex):
     def __init__(
         self,
         data: ArrayLike,

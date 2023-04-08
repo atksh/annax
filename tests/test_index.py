@@ -8,10 +8,10 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
-from annax.index.index import Index, PQIndex
+from annax.index.index import Index, IndexPQ
 
 
-@pytest.mark.parametrize("klass", [Index, PQIndex])
+@pytest.mark.parametrize("klass", [Index, IndexPQ])
 @pytest.mark.parametrize("dtype", [jnp.bfloat16, jnp.float32, jnp.float16])
 def test_index(klass, dtype):
     np.random.seed(0)
