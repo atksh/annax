@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-os.environ["XLA_FLAGS"] = '--xla_force_host_platform_device_count=7'
+os.environ["XLA_FLAGS"] = "--xla_force_host_platform_device_count=8"
 
 import jax
 import jax.numpy as jnp
@@ -22,8 +22,8 @@ def test_index(dtype):
     # Query for the 10 nearest neighbors of a random vector
     query = np.random.random((10, 128))
     neighbors, distances = index.search(query, k=3)
-    assert neighbors.shape == (10,3)
-    assert distances.shape == (10,3)
+    assert neighbors.shape == (10, 3)
+    assert distances.shape == (10, 3)
 
     neighbors, distances = index.search(data[:10], k=5)
     assert np.all(neighbors[:, 0] == jnp.arange(10))

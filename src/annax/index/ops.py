@@ -16,3 +16,8 @@ def argtopk(a, k: int):
     v = a[i]
     j = np.argsort(-v)
     return i[j]  # (k,)
+
+
+@jax.jit
+def take_topk(a, indices):
+    return a[indices]
