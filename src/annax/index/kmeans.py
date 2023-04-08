@@ -49,7 +49,9 @@ def update_codebook(data: Array, assignments: Array, codebook: Array, momentum: 
 
 
 @partial(jax.jit, static_argnums=(1, 2, 3, 4, 5))
-def kmeans(data: Array, k: int, n_iter: int, batch_size: int, momentum: float, seed: int = 42) -> Array:
+def kmeans(
+    data: Array, k: int, n_iter: int = 100, batch_size: int = 1024, momentum: float = 0.7, seed: int = 42
+) -> Array:
     n = data.shape[0]
 
     prng_key = jax.random.PRNGKey(seed)
