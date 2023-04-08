@@ -161,7 +161,7 @@ class ProductQuantizer:
         return ret[:, : self.dim]
 
     def aprod(self, codes_x: Array, codes_y: Array) -> Array:
-        """Approximate distance between two code vectors.
+        """Approximate dot product between two code vectors.
 
         Args:
             codes_x (Array): (n, d // s)
