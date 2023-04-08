@@ -48,9 +48,13 @@ def update_codebook(data: Array, assignments: Array, codebook: Array, momentum: 
     return momentum * codebook + (1 - momentum) * new_codebook
 
 
-def kmeans(data: Array, codebook: Array, n_iter: int, batch_size: int, momentum: float) -> Array:
+def kmeans(data: Array, k: int, n_iter: int, batch_size: int, momentum: float, seed: int = 42) -> Array:
     n = data.shape[0]
-    k = codebook.shape[0]
+
+    prng_key = jax.random.PRNGKey(seed)
+    idx = jnp.arange(n)
+    idx = jax.random.permutation(prng_key, idx)[:k]
+    codebook = data[idx].copy()
 
     @jax.jit
     def g(prng_key: Array, codebook: Array) -> Array:
@@ -61,7 +65,7 @@ def kmeans(data: Array, codebook: Array, n_iter: int, batch_size: int, momentum:
         return update_codebook(batch, assignments, codebook, momentum)
 
     def f(i: int, codebook: Array) -> Array:
-        prng_key = jax.random.PRNGKey(i)
+        prng_key = jax.random.PRNGKey(i + seed + 1)
         return g(prng_key, codebook)
 
     codebook = jax.lax.fori_loop(0, n_iter, f, codebook)
@@ -89,17 +93,10 @@ class KMeans:
         self.n_iter = n_iter
         self.n = data.shape[0]
         self.dim = data.shape[1]
+        self.seed = seed
 
         self.batch_size = min(self.n, batch_size) if batch_size > 0 else data.shape[0]
         self.momentum = momentum
-        self.prng_key = jax.random.PRNGKey(seed)
-
-        self.codebook = self._init_codebook()
-
-    def _init_codebook(self) -> Array:
-        idx = jnp.arange(self.n)
-        idx = jax.random.permutation(self.prng_key, idx)[: self.k]
-        return self.data[idx].copy()
 
     def fit(self) -> Array:
         """Fit the codebook vectors.
@@ -107,5 +104,5 @@ class KMeans:
         Returns:
             Array: codebook vectors with shape (k, d)
         """
-        self.codebook = kmeans(self.data, self.codebook, self.n_iter, self.batch_size, self.momentum)
+        self.codebook = kmeans(self.data, self.k, self.n_iter, self.batch_size, self.momentum, self.seed)
         return self.codebook
