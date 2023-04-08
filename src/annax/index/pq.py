@@ -31,7 +31,8 @@ def pq(
 class EncodeP:
     def __init__(self):
         def f(x: Array, codebook: Array) -> Array:
-            return find_assignments(x, codebook).astype(jnp.uint8)
+            ret = find_assignments(x, codebook)
+            return jax.lax.convert_element_type(ret, jnp.uint8)
 
         self.f = pmap_zip(f)
 
