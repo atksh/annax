@@ -5,7 +5,7 @@ import jax.numpy as jnp
 from jax import Array
 from jax.typing import ArrayLike
 
-from .algo import ivf_search, naive_search, pq_search
+from .algo import ivf_search, ivfpq_search, naive_search, pq_search
 from .kmeans import find_assignments, kmeans
 from .pq import calc_prod_table, encode, pq, prep
 
@@ -112,6 +112,60 @@ class IndexIVF(BaseIndex):
             self.meta["data"],
             query,
             self.meta["data_clusters"],
+            self.meta["codebook"],
+            self.meta["max_cluster_size"],
+            self.nprobe,
+            k=k,
+        )
+
+
+class IndexIVFPQ(BaseIndex):
+    def __init__(
+        self,
+        data: ArrayLike,
+        *,
+        nlist: int = 100,
+        nprobe: int = 10,
+        sub_dim: int = 8,
+        k: int = 256,
+        batch_size: int = 8192,
+        n_iter: int = 10_000,
+        dtype: jnp.dtype = jnp.float32,
+    ) -> None:
+        self.nlist = nlist
+        self.nprobe = nprobe
+        self.sub_dim = sub_dim
+        self.k = k
+        self.batch_size = batch_size
+        self.n_iter = n_iter
+        super().__init__(data, dtype=dtype)
+
+    def _build(self, data: Array) -> Dict[str, Array]:
+        codebooks = pq(data, self.sub_dim, n_iter=self.n_iter, batch_size=self.batch_size, k=self.k)
+        prod_tables = calc_prod_table(codebooks)
+        encoded_data = encode(prep(data, self.sub_dim), codebooks)
+        codebook = kmeans(data, self.nlist, n_iter=self.n_iter, batch_size=self.batch_size)
+        data_clusters = find_assignments(data, codebook)
+        max_cluster_size = int(jnp.max(jnp.bincount(data_clusters)))
+        return {
+            "codebooks": codebooks,
+            "prod_tables": prod_tables,
+            "encoded_data": encoded_data,
+            "codebook": codebook,
+            "data_clusters": data_clusters,
+            "max_cluster_size": max_cluster_size,
+        }
+
+    def _search(self, query: Array, *, k: int = 1) -> Array:
+        encoded_query = encode(prep(query, self.sub_dim), self.meta["codebooks"])
+        encoded_codebook = encode(prep(self.meta["codebook"], self.sub_dim), self.meta["codebooks"])
+        return ivfpq_search(
+            self.meta["encoded_data"],
+            encoded_query,
+            encoded_codebook,
+            self.meta["prod_tables"],
+            self.meta["data_clusters"],
+            query,
             self.meta["codebook"],
             self.meta["max_cluster_size"],
             self.nprobe,
