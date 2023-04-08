@@ -38,14 +38,13 @@ query = np.random.random(128)
 neighbors, distances = index.search(query, k=10)
 ```
 
-### PQ-ANN
+### Index Types
 
-```python
-index = annax.IndexPQ(data)
+- `annax.Index`: Flat Index
+- `annax.IndexIVF`: Inverted File Index
+- `annax.IndexPQ`: Product Quantization Index
+- `annax.IndexIVFPQ`: Inverted File Index with Product Quantization
 
-query = np.random.random(128)
-neighbors, distances = index.search(query, k=10)
-```
 
 
 ## Development
