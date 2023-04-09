@@ -56,7 +56,7 @@ class BaseIndex:
         raise NotImplementedError
 
     def dump(self, f_obj) -> None:
-        meta = {k: jax.device_get(v) if isinstance(v, jnp.ndarray) else v for k, v in self._meta.items()}
+        meta = {k: np.asarray(v) if isinstance(v, jnp.ndarray) else v for k, v in self._meta.items()}
         data = {
             "meta": meta,
             "vars": {k: v for k, v in vars(self).items() if k != "_meta"},
@@ -67,7 +67,7 @@ class BaseIndex:
     def load(cls, f_obj):
         data = load(f_obj)
         ins = cls.__new__(cls)
-        ins._meta = {k: jax.device_get(v) if isinstance(v, jnp.ndarray) else v for k, v in data["meta"].items()}
+        ins._meta = {k: jnp.asarray(v) if isinstance(v, np.ndarray) else v for k, v in data["meta"].items()}
         ins.__dict__.update(data["vars"])
         ins._warmup()
         return ins
