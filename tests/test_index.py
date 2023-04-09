@@ -5,7 +5,7 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
-from annax.index.index import Index, IndexIVF, IndexIVFPQ, IndexPQ
+from annax.index import Index, IndexIVF, IndexIVFPQ, IndexPQ
 
 
 @pytest.mark.parametrize("klass", [Index, IndexIVF, IndexPQ, IndexIVFPQ])

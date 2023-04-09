@@ -2,7 +2,7 @@ import jax
 import numpy as np
 import pytest
 
-from annax.index.pq import ProductQuantizer
+from annax.pq import ProductQuantizer
 
 
 def test_pq():

@@ -8,9 +8,9 @@ import jax
 import jax.numpy as jnp
 from jax import Array
 
-from ..pfunc import k_pmap, left_pjit, pmap_tuple
 from .ivf import find_assignments_topk, find_assignments_topk_pq, single_ivf_search, single_ivf_search_pq
 from .ops import argtopk, inner_prod, take_topk
+from .pfunc import k_pmap, left_pjit, pmap_tuple
 from .pq import lookup_prod_table
 
 parallel_inner_prod = left_pjit(inner_prod)

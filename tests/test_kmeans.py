@@ -2,7 +2,7 @@ import jax
 import numpy as np
 import pytest
 
-from annax.index.kmeans import KMeans, find_assignments
+from annax.kmeans import KMeans, find_assignments
 
 
 def test_kmeans():

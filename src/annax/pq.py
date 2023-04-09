@@ -5,8 +5,8 @@ import jax
 import jax.numpy as jnp
 from jax import Array
 
-from ..pfunc import pmap, pmap_zip
 from .kmeans import find_assignments, kmeans
+from .pfunc import pmap, pmap_zip
 
 
 @partial(jax.jit, static_argnums=(1,))
