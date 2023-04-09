@@ -14,8 +14,16 @@ from .serialize import dump, load
 
 class BaseIndex:
     def __init__(self, data: ArrayLike, *, dtype: jnp.dtype = jnp.float32) -> None:
+        self._dim = data.shape[1]
         self._dtype = dtype
         self._meta = self._build(data)
+        self._warmup()
+
+    def _warmup(self):
+        # warmup search
+        for i in range(16):
+            query = np.random.randn(9, self._dim).astype(self._dtype)
+            self.search(query, k=i + 1)
 
     @property
     def meta(self) -> Optional[Dict[str, Array]]:
@@ -61,6 +69,7 @@ class BaseIndex:
         ins = cls.__new__(cls)
         ins._meta = {k: jax.device_get(v) if isinstance(v, jnp.ndarray) else v for k, v in data["meta"].items()}
         ins.__dict__.update(data["vars"])
+        ins._warmup()
         return ins
 
 
