@@ -1,7 +1,3 @@
-import os
-
-os.environ["XLA_FLAGS"] = "--xla_gpu_enable_triton_gemm=false"
-
 from typing import Tuple
 
 import jax
