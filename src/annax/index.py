@@ -6,9 +6,9 @@ import numpy as np
 from jax import Array
 from jax.typing import ArrayLike
 
-from .algo import ivf_search, ivfpq_search, naive_search, pq_search
 from .kmeans import find_assignments, kmeans
 from .pq import calc_prod_table, encode, pq, prep
+from .search import ivf_search, ivfpq_search, naive_search, pq_search
 from .serialize import dump, load
 
 
