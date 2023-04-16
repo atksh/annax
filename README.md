@@ -38,6 +38,15 @@ query = np.random.random(128)
 neighbors, distances = index.search(query, k=10)
 ```
 
+### Index Types
+
+- `annax.Index`: Flat Index
+- `annax.IndexIVF`: Inverted File Index
+- `annax.IndexPQ`: Product Quantization Index
+- `annax.IndexIVFPQ`: Inverted File Index with Product Quantization
+
+
+
 ## Development
 
 To install Annax for development, run the following commands in your terminal:
