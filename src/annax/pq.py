@@ -20,7 +20,13 @@ def prep(data: Array, sub_dim: int) -> Array:
 
 
 def pq(
-    data: Array, sub_dim: int, k: int, n_iter: int = 100, batch_size: int = 1024, momentum: float = 0.7, seed: int = 42
+    data: Array,
+    sub_dim: int,
+    k: int,
+    n_iter: int = 100,
+    batch_size: int = 1024,
+    momentum: float = 0.7,
+    seed: int = 42,
 ) -> Array:
     data = prep(data, sub_dim)
     f = partial(kmeans, k=k, n_iter=n_iter, batch_size=batch_size, momentum=momentum, seed=seed)
@@ -115,7 +121,9 @@ def lookup_prod_table(table: Array, x: Array, y: Array) -> Array:
 class ProductQuantizer:
     k: int = 256
 
-    def __init__(self, data: Array, sub_dim: int = 8, *, batch_size: int = 8192, n_iter: int = 1000) -> None:
+    def __init__(
+        self, data: Array, sub_dim: int = 8, *, batch_size: int = 8192, n_iter: int = 1000
+    ) -> None:
         self.dim = data.shape[1]
         self.data = data
         self.sub_dim = sub_dim
@@ -129,7 +137,9 @@ class ProductQuantizer:
         return prep(data, self.sub_dim)
 
     def fit(self) -> Tuple[Array, Array]:
-        self.codebooks = pq(self.data, self.sub_dim, self.k, n_iter=self.n_iter, batch_size=self.batch_size)
+        self.codebooks = pq(
+            self.data, self.sub_dim, self.k, n_iter=self.n_iter, batch_size=self.batch_size
+        )
         self.prod_table = calc_prod_table(self.codebooks)
         return self.codebooks, self.prod_table
 

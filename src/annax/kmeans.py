@@ -50,7 +50,12 @@ def update_codebook(data: Array, assignments: Array, codebook: Array, momentum: 
 
 @partial(jax.jit, static_argnums=(1, 2, 3, 4, 5))
 def kmeans(
-    data: Array, k: int, n_iter: int = 1000, batch_size: int = 8192, momentum: float = 0.7, seed: int = 42
+    data: Array,
+    k: int,
+    n_iter: int = 1000,
+    batch_size: int = 8192,
+    momentum: float = 0.7,
+    seed: int = 42,
 ) -> Array:
     n = data.shape[0]
 
@@ -107,5 +112,7 @@ class KMeans:
         Returns:
             Array: codebook vectors with shape (k, d)
         """
-        self.codebook = kmeans(self.data, self.k, self.n_iter, self.batch_size, self.momentum, self.seed)
+        self.codebook = kmeans(
+            self.data, self.k, self.n_iter, self.batch_size, self.momentum, self.seed
+        )
         return self.codebook
