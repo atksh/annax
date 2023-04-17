@@ -1,14 +1,8 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = [
-  "setuptools>=42",
-  "wheel",
-]
+requires = ["setuptools>=62.6", "setuptools_scm[toml]>=6.2", "wheel"]
 
 [project]
-authors = [
-  {name = "atksh", email = "31435204+atksh@users.noreply.github.com"},
-]
 dependencies = [
   "jax>=0.4.8",
   "jaxlib>=0.4.7",
@@ -16,13 +10,22 @@ dependencies = [
   "zstandard~=0.20.0",
 ]
 description = "Fast and memory-efficient approximate nearest neighbor search with JAX"
+dynamic = ["version"]
+license = {file = "LICENSE"}
 name = "annax"
 readme = "README.md"
-requires-python = ">=3.8,<3.12"
-version = "0.0.1"
+requires-python = ">=3.7"
 
-[project.license]
-file = "LICENSE"
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.dynamic]
+version = {attr = "annax.version.version"}
+
+[tool.setuptools_scm]
+local_scheme = "no-local-version"
+version_scheme = "release-branch-semver"
+write_to = "src/annax/version.py"
 
 [options.packages.find]
 exclude = [
@@ -44,10 +47,10 @@ extend-exclude = '''
   | tests
 )/
 '''
-line-length = 120
+line-length = 100
 target-version = ["py39"]
 
 [tool.isort]
-line_length = 120
+line_length = 100
 profile = "black"
-py_version = "38"
+py_version = "39"

@@ -49,14 +49,18 @@ class BaseIndex:
         if len(query.shape) == 1:
             query = query.reshape(1, -1)
         elif len(query.shape) > 2:
-            raise ValueError(f"Query array must be 1- or 2-dimensional, got {len(query.shape)} dimensions")
+            raise ValueError(
+                f"Query array must be 1- or 2-dimensional, got {len(query.shape)} dimensions"
+            )
         return self._search(self._asarray(query), k=k)
 
     def _search(self, query: Array, *, k: int = 1) -> Array:
         raise NotImplementedError
 
     def dump(self, f_obj) -> None:
-        meta = {k: np.asarray(v) if isinstance(v, jnp.ndarray) else v for k, v in self._meta.items()}
+        meta = {
+            k: np.asarray(v) if isinstance(v, jnp.ndarray) else v for k, v in self._meta.items()
+        }
         data = {
             "meta": meta,
             "vars": {k: v for k, v in vars(self).items() if k != "_meta"},
@@ -67,7 +71,9 @@ class BaseIndex:
     def load(cls, f_obj):
         data = load(f_obj)
         ins = cls.__new__(cls)
-        ins._meta = {k: jnp.asarray(v) if isinstance(v, np.ndarray) else v for k, v in data["meta"].items()}
+        ins._meta = {
+            k: jnp.asarray(v) if isinstance(v, np.ndarray) else v for k, v in data["meta"].items()
+        }
         ins.__dict__.update(data["vars"])
         ins._warmup()
         return ins

@@ -30,7 +30,12 @@ def find_assignments_topk(data: Array, codebook: Array, k: int) -> Array:
 
 @partial(jax.jit, static_argnums=(5,))
 def find_assignments_topk_pq(
-    data: Array, codebook: Array, encoded_data: Array, encoded_codebook: Array, prod_tables: Array, k: int
+    data: Array,
+    codebook: Array,
+    encoded_data: Array,
+    encoded_codebook: Array,
+    prod_tables: Array,
+    k: int,
 ) -> Array:
     """Find the top-k nearest codebook vectors for each data point.
 
