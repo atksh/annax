@@ -48,8 +48,8 @@ def nonzero_idx(mask: Array, max_cluster_size: int) -> Array:
         i = val["i"]
         j = val["j"]
         out = val["out"]
-        j = jax.lax.cond(mask[i], lambda _: j + 1, lambda _: j, None)
         out = jax.lax.cond(mask[i], lambda _: out.at[j].set(i), lambda _: out, None)
+        j = jax.lax.cond(mask[i], lambda _: j + 1, lambda _: j, None)
         return {"i": i + 1, "j": j, "out": out}
 
     val = jax.lax.while_loop(cond, body, init_val)
