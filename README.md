@@ -43,7 +43,7 @@ neighbors, distances = index.search(query, k=10)
 - `annax.Index`: Flat Index
 - `annax.IndexIVF`: Inverted File Index
 - `annax.IndexPQ`: Product Quantization Index
-- `annax.IndexIVFPQ`: Inverted File Index with Product Quantization
+- `annax.IndexIVFPQ`: Inverted File Index with Residual Product Quantization
 
 
 

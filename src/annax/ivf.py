@@ -61,7 +61,7 @@ def find_assignments_topk_pq(
 def single_ivf_search(
     data: Array, data_cluster: Array, query: Array, near_index: Array, max_cluster_size: int, k: int
 ) -> Tuple[Array, Array]:
-    """Find the nearest neighbor for each data point.
+    """Find the nearest neighbor for a query using residual PQ.
 
     Args:
         data (Array): data points with shape (n, d)
@@ -72,7 +72,7 @@ def single_ivf_search(
         k (int): number of nearest neighbors to find
 
     Returns:
-        Array: indices of the nearest neighbor for each data point
+        Array: indices of the nearest neighbors for the query
     """
     assert query.ndim == 1
 
@@ -101,19 +101,19 @@ def single_ivf_search_pq(
     max_cluster_size: int,
     k: int,
 ) -> Tuple[Array, Array]:
-    """Find the nearest neighbor for each data point.
+    """Find the nearest neighbor for a query using residual PQ.
 
     Args:
         encoded_data (Array): data points with shape (n, d)
         prod_tables (Array): product tables with shape (d // s, k, k)
         data_cluster (Array): indices of the nearest codebook vector for each data point with shape (n,)
-        encoded_query (Array): a query point with shape (d,)
+        encoded_query (Array): encoded residual query with shape (d // s,)
         near_index (Array): index of the nearest codebook vector for the query point with shape (nprobe,)
         max_cluster_size (int): maximum number of data points in a cluster
         k (int): number of nearest neighbors to find
 
     Returns:
-        Array: indices of the nearest neighbor for each data point
+        Array: indices of the nearest neighbors for the query
     """
     assert encoded_query.ndim == 1
 

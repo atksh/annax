@@ -102,6 +102,7 @@ class IndexPQ(BaseIndex):
         super().__init__(data, dtype=dtype)
 
     def _build(self, data: Array) -> Dict[str, Array]:
+        """Build the residual IVF-PQ index."""
         codebooks = pq(data, self.sub_dim, n_iter=self.n_iter, batch_size=self.batch_size, k=self.k)
         prod_tables = calc_prod_table(codebooks)
         encoded_data = encode(prep(data, self.sub_dim), codebooks)
@@ -153,6 +154,7 @@ class IndexIVF(BaseIndex):
 
 
 class IndexIVFPQ(BaseIndex):
+    """Inverted file index with residual product quantization."""
     def __init__(
         self,
         data: ArrayLike,
@@ -174,11 +176,18 @@ class IndexIVFPQ(BaseIndex):
         super().__init__(data, dtype=dtype)
 
     def _build(self, data: Array) -> Dict[str, Array]:
-        codebooks = pq(data, self.sub_dim, n_iter=self.n_iter, batch_size=self.batch_size, k=self.k)
-        prod_tables = calc_prod_table(codebooks)
-        encoded_data = encode(prep(data, self.sub_dim), codebooks)
         codebook = kmeans(data, self.nlist, n_iter=self.n_iter, batch_size=self.batch_size)
         data_clusters = find_assignments(data, codebook)
+        residual = data - codebook[data_clusters]
+        codebooks = pq(
+            residual,
+            self.sub_dim,
+            n_iter=self.n_iter,
+            batch_size=self.batch_size,
+            k=self.k,
+        )
+        prod_tables = calc_prod_table(codebooks)
+        encoded_data = encode(prep(residual, self.sub_dim), codebooks)
         max_cluster_size = int(jnp.max(jnp.bincount(data_clusters)))
         return {
             "codebooks": codebooks,
@@ -190,14 +199,12 @@ class IndexIVFPQ(BaseIndex):
         }
 
     def _search(self, query: Array, *, k: int = 1) -> Array:
-        encoded_query = encode(prep(query, self.sub_dim), self.meta["codebooks"])
-        encoded_codebook = encode(prep(self.meta["codebook"], self.sub_dim), self.meta["codebooks"])
+        """Search using residual IVF-PQ."""
         return ivfpq_search(
             self.meta["encoded_data"],
-            encoded_query,
-            encoded_codebook,
             self.meta["prod_tables"],
             self.meta["data_clusters"],
+            self.meta["codebooks"],
             query,
             self.meta["codebook"],
             self.meta["max_cluster_size"],
